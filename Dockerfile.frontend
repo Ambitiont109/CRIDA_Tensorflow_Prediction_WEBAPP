@@ -8,7 +8,9 @@ COPY start_frontend.sh /start_frontend.sh
 
 RUN mkdir crida_frontend
 
-COPY ./crida_frontend/build/ /crida_frontend
+# COPY ./crida_frontend/build/ /crida_frontend
+
+COPY ./crida_frontend/ /crida_frontend
 
 # EXPOSE the port to allow communication to/from server
 EXPOSE 55001

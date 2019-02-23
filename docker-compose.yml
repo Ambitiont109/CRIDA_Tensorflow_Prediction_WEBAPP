@@ -8,7 +8,7 @@ services:
     container_name: crida.backend
     image: crida-backend
     ports:
-      - 55001:55001
+      - 55002:55002
 
   webapp-docker:
     build:

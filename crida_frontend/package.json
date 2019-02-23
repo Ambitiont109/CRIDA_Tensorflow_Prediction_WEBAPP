@@ -1,21 +1,22 @@
 {
-  "name": "crida_webapp",
+  "name": "crida_frontend",
   "version": "0.1.0",
   "private": true,
   "main": "index.js",
   "dependencies": {
     "@material-ui/core": "^3.7.1",
+    "http-server": "^0.11.1",
     "material-ui-datetimepicker": "^1.0.7",
     "react": "^16.6.0",
     "react-csv-to-table": "0.0.1",
     "react-dom": "^16.6.0",
     "react-file-reader": "^1.1.4",
     "react-router-dom": "^4.3.1",
-    "react-scripts": "2.1.1",
+    "react-scripts": "^2.1.5",
     "recharts": "^1.4.2"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "PORT=55001 react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

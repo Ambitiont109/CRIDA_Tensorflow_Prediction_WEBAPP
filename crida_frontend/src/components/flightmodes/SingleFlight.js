@@ -66,7 +66,7 @@ class SingleFlight extends Component {
   };
 
   fetchData = () => {
-      const url = "http://localhost:8000/single_predict?"+
+      const url = "http://158.109.240.230:55002/single_predict?"+
       '&arrivalDelay='+this.state.arrivalDelay+
       '&schedTurnd='+this.state.schedTurnd+
       '&distanceTarget='+this.state.distanceTarget+

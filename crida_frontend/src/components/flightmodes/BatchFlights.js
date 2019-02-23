@@ -79,7 +79,7 @@ class BatchFlights extends Component {
   }
 
   fetchData = () => {
-      fetch("http://localhost:8000/batch_predict", {
+      fetch("http://158.109.240.230:55002/batch_predict", {
         method: "POST",
         headers: {
           'Accept': 'application/jsonp, text/plain, */*',
