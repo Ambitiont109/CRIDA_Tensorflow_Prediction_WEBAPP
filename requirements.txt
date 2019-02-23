@@ -1,0 +1,9 @@
+Django==2.1.7
+gunicorn==19.6.0
+pandas==0.22.0
+scikit-learn[alldeps]
+django-cors-headers==2.4.0
+tensorflow==1.12.0
+keras==2.2.4
+xgboost==0.81
+h5py==2.7.1

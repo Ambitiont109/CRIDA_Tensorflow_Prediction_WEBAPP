@@ -1,0 +1,14 @@
+# Dockerfile
+
+# FROM directive instructing base image to build upon
+FROM python:3-onbuild
+
+# COPY startup script into known file location in container
+COPY start_backend.sh /start_backend.sh
+
+# EXPOSE port 55002 to allow communication to/from server
+EXPOSE 55002
+
+# CMD specifies the command to execute to start the server running
+CMD ["/start_backend.sh"]
+# done!

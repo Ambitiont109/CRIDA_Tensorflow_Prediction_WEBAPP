@@ -1,0 +1,22 @@
+version: '2'
+
+services:
+  django-docker:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: crida.backend
+    image: crida-backend
+    ports:
+      - 55001:55001
+
+  webapp-docker:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: crida.frontend
+    image: crida-frontend
+    #depends_on:
+    #  - django-docker
+    ports:
+      - 55001:55001

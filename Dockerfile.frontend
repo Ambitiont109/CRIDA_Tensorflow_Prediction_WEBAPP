@@ -1,0 +1,17 @@
+# Dockerfile
+
+# FROM directive instructing base image to build upon
+FROM node:10.15.1 as builder
+
+# COPY startup script into known file location in container
+COPY start_frontend.sh /start_frontend.sh
+
+RUN mkdir crida_frontend
+
+COPY ./crida_frontend/build/ /crida_frontend
+
+# EXPOSE the port to allow communication to/from server
+EXPOSE 55001
+
+# CMD specifies the command to execute to start the server running.
+CMD ["/start_frontend.sh"]
