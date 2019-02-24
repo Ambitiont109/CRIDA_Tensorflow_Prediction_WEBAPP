@@ -42,8 +42,8 @@ class BatchFlights extends Component {
     this.setState(prevState => ({
       prediction_arr: prediction_arr,
       prediction_dep: prediction_dep,
-      delay_arr_cat: prediction_arr===0 ? "<15" : (prediction_arr===1 ? "[15; 60]" : ">60"),
-      delay_dep_cat: prediction_dep===0 ? "==0" : (prediction_dep===1 ? "[0; 25]" : ">25"),
+      delay_arr_cat: prediction_arr===0 ? "<=15" : (prediction_arr===1 ? "(15; 60]" : ">60"),
+      delay_dep_cat: prediction_dep===0 ? "<=15" : (prediction_dep===1 ? "(15; 35]" : ">35"),
       probability_arr: probability_arr,
       probability_dep: probability_dep,
 

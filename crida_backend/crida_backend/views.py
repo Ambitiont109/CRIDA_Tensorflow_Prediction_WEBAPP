@@ -154,8 +154,8 @@ def batch_predict_endpoint(request):
     pd.options.mode.chained_assignment = None
 
     # Load models
-    lstm_arr = load_model('crida_backend/trained_models/batch_flights/keras_ltsm_arr_model_081.hdf5')
-    lstm_dep = load_model('crida_backend/trained_models/batch_flights/keras_ltsm_dep_model_088.hdf5')
+    lstm_arr = load_model('crida_backend/trained_models/batch_flights/keras_ltsm_arr_model.hdf5')
+    lstm_dep = load_model('crida_backend/trained_models/batch_flights/keras_ltsm_dep_model.hdf5')
 
     # Load encoders
     min_max_enc_arr = joblib.load('crida_backend/encoders/batch_flights/arr_encoders/minmaxscaler.pkl')
@@ -163,25 +163,12 @@ def batch_predict_endpoint(request):
     min_max_enc_dep = joblib.load('crida_backend/encoders/batch_flights/dep_encoders/minmaxscaler.pkl')
     one_hot_enc_dep = joblib.load('crida_backend/encoders/batch_flights/dep_encoders/onehotencoder.pkl')
 
-    continuous_features = ["HOLDING_SEC",
-                           "ADDITIONAL_ASMA_40",
-                           "ADDITIONAL_ASMA_60",
-                           "PLANNED_TURNAROUND_SEC",
-                           "AIRPORT_DEP_DELAY_LAST2HOURS",
-                           "TEMPERATURE",
-                           "VISIBILITY",
-                           "WIND_INTENSITY",
-                           "DISTANCE_FROM_ORIGIN",
-                           "DISTANCE_TO_TARGET"]
-    categorical_features = ["MONTH",
-                            "WEEKDAY",
-                            "PLANNED_ARR_HOUR",
-                            "PLANNED_DEP_HOUR",
-                            "WAKE",
-                            "ARRIVAL_FLIGHT_HAUL",
-                            "DEPARTURE_FLIGHT_HAUL",
-                            "WIND_DIRECTION",
-                            "IS_LOWCOST"
+    continuous_features = ["HOLDING_SEC","ADDITIONAL_ASMA_40","ADDITIONAL_ASMA_60",
+                           "PLANNED_TURNAROUND_SEC","AIRPORT_DEP_DELAY_LAST2HOURS",
+                           "TEMPERATURE","VISIBILITY","WIND_INTENSITY",
+                           "DISTANCE"]
+    categorical_features = ["MONTH","WEEKDAY","PLANNED_HOUR","WAKE","FLIGHT_HAUL",
+                            "WIND_DIRECTION","IS_LOWCOST","TYPE"
                            ]
 
     # Read static variables
@@ -252,13 +239,11 @@ def batch_predict_endpoint(request):
         csvData = csvData.reindex(csvData.index.drop(0))
         X = csvData[:-1]
 
-        X["AIRLINE_ARR_ICAO"] = X["AIRLINE_ARR_ICAO"].astype(str)
+        X["AIRLINE_ICAO"] = X["AIRLINE_ICAO"].astype(str)
         X["WAKE"] = X["WAKE"].astype(str)
-        X["SIBT"] = X["SIBT"].astype(str)
-        X["SOBT"] = X["SOBT"].astype(str)
+        X["DATETIME"] = X["DATETIME"].astype(str)
         X["PLANNED_TURNAROUND"] = X["PLANNED_TURNAROUND"].astype(str).astype(float)
-        X["DISTANCE_FROM_ORIGIN"] = X["DISTANCE_FROM_ORIGIN"].astype(str).astype(float)
-        X["DISTANCE_TO_TARGET"] = X["DISTANCE_TO_TARGET"].astype(str).astype(float)
+        X["DISTANCE"] = X["DISTANCE"].astype(str).astype(float)
 
         '''
         new = []
@@ -303,22 +288,19 @@ def batch_predict_endpoint(request):
 
         X = X.assign(**dct)
 
-        X['IS_LOWCOST'] =  X['AIRLINE_ARR_ICAO'].apply(lambda x: isLowCost(x))
-        X['MONTH'] =  X['SIBT'].apply(lambda x: toDateTime(x,"%Y-%m-%d %H:%M:%S").month)
-        X['WEEKDAY'] =  X['SIBT'].apply(lambda x: toDateTime(x,"%Y-%m-%d %H:%M:%S").weekday())
-        X['PLANNED_ARR_HOUR'] =  X['SIBT'].apply(lambda x: toDateTime(x,"%Y-%m-%d %H:%M:%S").hour)
-        X['PLANNED_DEP_HOUR'] =  X['SOBT'].apply(lambda x: toDateTime(x,"%Y-%m-%d %H:%M:%S").hour)
+        X['IS_LOWCOST'] =  X['AIRLINE_ICAO'].apply(lambda x: isLowCost(x))
+        X['MONTH'] =  X['DATETIME'].apply(lambda x: toDateTime(x,"%Y-%m-%d %H:%M:%S").month)
+        X['WEEKDAY'] =  X['DATETIME'].apply(lambda x: toDateTime(x,"%Y-%m-%d %H:%M:%S").weekday())
+        X['PLANNED_HOUR'] =  X['DATETIME'].apply(lambda x: toDateTime(x,"%Y-%m-%d %H:%M:%S").hour)
         X['PLANNED_TURNAROUND_SEC'] =  X['PLANNED_TURNAROUND'].apply(lambda x: x*60)
-        X['ARRIVAL_FLIGHT_HAUL'] = X['DISTANCE_FROM_ORIGIN'].apply(lambda x: flightHaul(x))
-        X['DEPARTURE_FLIGHT_HAUL'] = X['DISTANCE_TO_TARGET'].apply(lambda x: flightHaul(x))
+        X['FLIGHT_HAUL'] = X['DISTANCE'].apply(lambda x: flightHaul(x))
 
         to_remove = [
                         0,
                         "NUM",
                         "PLANNED_TURNAROUND",
-                        "SIBT",
-                        "SOBT",
-                        "AIRLINE_ARR_ICAO"
+                        "DATETIME",
+                        "AIRLINE_ICAO"
                     ]
 
         X = X[X.columns.difference(to_remove)]
