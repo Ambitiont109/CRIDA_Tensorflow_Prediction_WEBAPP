@@ -69,6 +69,14 @@ const styles = theme => ({
     marginLeft: theme.spacing.unit * 2,
     marginRight: theme.spacing.unit * 2
   },
+  topControls_batch: {
+    borderBottom: "1px solid #ddd",
+    height: "15%",
+    boxShadow: "0 1px 4px rgba(0,0,0,0.08)",
+    background: "white",
+    marginLeft: theme.spacing.unit * 2,
+    marginRight: theme.spacing.unit * 2
+  },
   mainPart: {
     webkitJustifyContent: "space-between",
     justifyContent: "space-between",
@@ -98,6 +106,26 @@ const styles = theme => ({
   button: {
     marginTop: theme.spacing.unit * 3,
     marginLeft: theme.spacing.unit
+  },
+  spinner_bg: {
+    backgroundColor:"#ffffffaa",
+    opacity:"0",
+    transition: "opacity 1s ease-out",
+    position:"fixed",
+    left:"0",
+    top:"0",
+    width:"100vw",
+    height:"100vh",
+    display:"flex",    
+    justifyContent:"center",
+    alignItems: "center",
+    
+  },
+  show: {
+    opacity:"1.0",
+    zIndex:"9999"
+  },
+  spinner: {
   }
 });
 export default styles;

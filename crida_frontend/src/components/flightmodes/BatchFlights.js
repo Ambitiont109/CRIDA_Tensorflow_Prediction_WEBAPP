@@ -4,36 +4,47 @@ import MainContent from "./layout/batch/MainContent"
 import BottomControls from "./layout/batch/BottomControls"
 import styles from "./layout/styles/styles";
 import { withStyles } from "@material-ui/core/styles";
-
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Button from '@material-ui/core/Button';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 
 class BatchFlights extends Component {
 
   constructor(props) {
-      super(props);
-      this.state = {
-          csvData: [],
-          holdingTime: 0,
-          asma40: 49,
-          asma60: 18,
-          temperature: 9,
-          visibility: 9999.00,
-          windIntensity: 1.5,
-          windDirection: "VRB",
-          airportDepDelay: 8,
-          prediction_arr: 0,
-          prediction_dep: 0,
-          probability_arr: 0.00,
-          probability_dep: 0.00,
-          delay_arr_cat: "NA",
-          delay_dep_cat: "NA",
-          chartDataAirportDepDelay: [],
-          chartDataTurnaround: [],
-          chartDataArrivalDelay: [],
-          chartDataDistanceTarget: [],
-          labelWidth: 0
-      };
-      this.handleChange = this.handleChange.bind(this);
+    super(props);
+    this.state = {
+        csvData: [],
+        holdingTime: 0,
+        asma40: 49,
+        asma60: 18,
+        temperature: 9,
+        visibility: 9999.00,
+        windIntensity: 1.5,
+        windDirection: "VRB",
+        airportDepDelay: 8,
+        prediction_arr: 0,
+        prediction_dep: 0,
+        probability_arr: 0.00,
+        probability_dep: 0.00,
+        delay_arr_cat: "NA",
+        delay_dep_cat: "NA",
+        chartDataAirportDepDelay: [],
+        chartDataTurnaround: [],
+        chartDataArrivalDelay: [],
+        chartDataDistanceTarget: [],
+        labelWidth: 0,
+        loading:false,
+        loadingStatus:false,
+        loadingStatusText:"",
+        open:false,
+    };
+    this.handleChange = this.handleChange.bind(this);
   };
+  
 
   updateDelay(prediction_arr,
               prediction_dep,
@@ -46,6 +57,9 @@ class BatchFlights extends Component {
       delay_dep_cat: prediction_dep===0 ? "<=15" : (prediction_dep===1 ? "(15; 35]" : ">35"),
       probability_arr: probability_arr,
       probability_dep: probability_dep,
+      loading:false,
+      loadingStatus:true,
+      loadingStatusText:"success",
 
       chartDataAirportDepDelay: [
         ...prevState.chartDataAirportDepDelay,
@@ -71,6 +85,7 @@ class BatchFlights extends Component {
   };
 
   setCsvData = csvData => {
+    // this.state.csvData = csvData;
     this.setState({
       csvData
     }, () => {
@@ -78,8 +93,13 @@ class BatchFlights extends Component {
     });
   }
 
+  validateCSVData = () => {
+    
+  }
   fetchData = () => {
-      fetch("http://158.109.240.230:55002/batch_predict", {
+      this.setState({loading:true});
+
+      fetch("http://0.0.0.0:55002/batch_predict", {
         method: "POST",
         headers: {
           'Accept': 'application/jsonp, text/plain, */*',
@@ -87,9 +107,9 @@ class BatchFlights extends Component {
           "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" // otherwise $_POST is empty
         },
         body: JSON.stringify({
-          holdingTime: this.state.holdingTime,
-          asma40: this.state.asma40,
-          asma60: this.state.asma60,
+          //holdingTime: this.state.holdingTime,
+          //asma40: this.state.asma40,
+          //asma60: this.state.asma60,
           temperature: this.state.temperature,
           visibility: this.state.visibility,
           windIntensity: this.state.windIntensity,
@@ -102,14 +122,36 @@ class BatchFlights extends Component {
         return resp.json()
       })
       .then((data) => {
-        this.updateDelay(data.prediction_arr,
-                         data.prediction_dep,
-                         data.probability_arr,
-                         data.probability_dep)
+        if(data['success'] == true)
+        {
+          this.updateDelay(data.prediction_arr,
+                             data.prediction_dep,
+                             data.probability_arr,
+                             data.probability_dep)          
+        }else{
+          this.setState({ loading:false,
+                          loadingStatus:false,
+                          loadingStatusText: data['error_msg'],
+                          open:true
+          });
+        }
       })
       .catch((error) => {
-        console.log(error, "catch the hoop")
+        console.log(error)
+        this.setState({ loading:false,
+                        loadingStatus:false,
+                        loadingStatusText: "error",
+                        open:true
+        });
       })
+  };
+
+  handleClickOpen = () => {
+    this.state.open = true;
+  };
+
+  handleClose = () => {
+    this.setState({open:false});
   };
 
   handleChange = (name, event) => {
@@ -136,18 +178,49 @@ class BatchFlights extends Component {
       });
   };
 
-  render() {
-    return (
 
+  render() {
+    console.log(this.props);
+    let loader;
+    if (this.state.loading)
+    {
+      loader =  <div className={[this.props.classes.spinner_bg, this.props.classes.show].join(" ")}>
+              <CircularProgress size={48}/>
+            </div>;
+    }
+    else{
+      loader = null;
+
+    }
+      return (
         <Fragment>
+            {loader}
 
             <TopControls state={this.state} styles={this.props.classes} handleChange={this.handleChange} />
 
             <MainContent state={this.state} styles={this.props.classes} setCsvData={this.setCsvData} />
 
             <BottomControls state={this.state} styles={this.props.classes} fetchData={this.fetchData} handleReset={this.handleReset}/>
-
+            <Dialog
+                    open={this.state.open}
+                    onClose={this.handleClose}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                  >
+                    <DialogTitle id="alert-dialog-title">{"Error has been issued while predicting?"}</DialogTitle>
+                    <DialogContent>
+                      <DialogContentText id="alert-dialog-description">
+                      {this.state.loadingStatusText}
+                      </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                      <Button onClick={this.handleClose} color="primary" autoFocus>
+                        Close
+                      </Button>
+                    </DialogActions>
+                  </Dialog>
         </Fragment>
+
 
     );
   }
