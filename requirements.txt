@@ -7,4 +7,4 @@ tensorflow==1.5
 keras==2.2.4
 xgboost==0.81
 h5py==2.7.1
-djangorestframework==3.9.1
+djangorestframework==3.11.2
